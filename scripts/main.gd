@@ -290,8 +290,10 @@ func _buy_global_upgrade(upgrade_id: String) -> void:
 	_state.buy_global_upgrade(upgrade_id)
 
 func _select_floor(floor_index: int) -> void:
-	if _state.select_floor(floor_index):
-		_page = "mine"
+	var previous_page := _page
+	_page = "mine"
+	if not _state.select_floor(floor_index):
+		_page = previous_page
 
 func _on_mine_tick() -> void:
 	var result: Dictionary = _state.apply_miner_hit()
