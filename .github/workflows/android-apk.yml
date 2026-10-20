@@ -1,0 +1,39 @@
+name: Android APK
+
+on:
+  push:
+    branches:
+      - "**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-export:
+    runs-on: ubuntu-24.04
+    container:
+      image: barichello/godot-ci:4.7.2-stable
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Godot export templates
+        run: |
+          mkdir -p "$HOME/.config" "$HOME/.local/share/godot/export_templates"
+          cp -a /root/.config/godot "$HOME/.config/"
+          cp -a /root/.local/share/godot/export_templates/4.7.2.stable "$HOME/.local/share/godot/export_templates/4.7.2.stable"
+      - name: Import project
+        run: godot --headless --editor --path . --import
+      - name: Run gameplay tests
+        run: godot --headless --path . --script tests/run_tests.gd
+      - name: Export debug APK
+        run: |
+          mkdir -p build/android
+          godot --headless --path . --export-debug "Android" build/android/Kopalnia-Klockow-debug.apk
+          test -s build/android/Kopalnia-Klockow-debug.apk
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Kopalnia-Klockow-debug
+          path: build/android/Kopalnia-Klockow-debug.apk
+          if-no-files-found: error
