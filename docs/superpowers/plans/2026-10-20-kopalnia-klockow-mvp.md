@@ -36,6 +36,7 @@
 - Create: `scripts/main.gd`
 - Create: `.gitignore`
 - Create: `.github/workflows/android-apk.yml`
+- Create: `export_presets.cfg`
 - Create: `README.md`
 
 **Interfaces:**
@@ -45,7 +46,7 @@
   Set application name, portrait viewport, main scene, and autoload placeholders only for components already introduced in this plan.
 
 - [ ] **Step 2: Add the Android Actions workflow**
-  Pin a Godot 4 version and matching export templates; install the Android build dependencies; import project resources headlessly; export a debug APK; upload it as a workflow artifact. Keep signing secrets out of the repository.
+  Add an Android export preset named `Android`; pin a Godot 4 version and matching export templates; install the Android build dependencies; import project resources headlessly; export a debug APK; upload it as a workflow artifact. Keep signing secrets out of the repository.
 
 - [ ] **Step 3: Validate the empty scaffold**
   Run: Godot headless editor import and scene launch with `--quit-after 2`.
@@ -70,6 +71,7 @@
 - `FloorCatalog.floor_data(floor_index: int) -> Dictionary`
 - `GameRules.upgrade_cost(level: int) -> int`
 - `GameRules.upgrade_effect(level: int) -> float`
+- `GameState.select_floor(floor_index: int) -> bool`
 - `GameState.buy_floor_upgrade(floor_index: int) -> bool`
 - `GameState.buy_miner(miner_id: String) -> bool`
 - `GameState.apply_miner_hit() -> Dictionary`
@@ -86,7 +88,7 @@
   Use configurable formulas for block health, coin payout, upgrade cost, and upgrade effect. Keep early floors completable quickly; ensure affordability checks happen before balances change.
 
 - [ ] **Step 4: Test miner damage and reward distribution**
-  Assert miners deal automatic damage, destroyed blocks grant coins exactly once, crystals/chests are possible bonus outcomes, and floor completion occurs only when all blocks are cleared.
+  Assert miners deal automatic damage; destroyed blocks grant rewards exactly once; crystals/chests are possible bonus outcomes; unaffordable purchases do not mutate state; very large balances and repeated purchases never create negative values; floor completion occurs only when all blocks are cleared.
 
 - [ ] **Step 5: Run the rules test suite**
   Run: `godot --headless --path . --script tests/run_tests.gd`.
@@ -138,7 +140,7 @@
 - Create: `assets/` placeholder vector/cartoon shapes where needed.
 
 **Interfaces:**
-- Mine screen reads `GameState` and emits UI intent through `buy_miner`, `buy_floor_upgrade`, `select_floor`, and `select_panel`.
+- Mine screen reads `GameState` and calls `buy_miner`, `buy_floor_upgrade`, and `select_floor`; panel navigation remains local to the UI.
 - Empty/locked world entries are display-only until unlocked.
 
 - [ ] **Step 1: Build the mine screen layout**
@@ -148,7 +150,7 @@
   Make each panel independently open/close and update after purchases or floor changes. Use readable high-contrast cartoon placeholder art.
 
 - [ ] **Step 3: Wire UI to state and add smoke checks**
-  Add headless smoke assertions that all required scenes load and the main scene has no missing resource paths.
+  Add headless smoke assertions that all required scenes load and the main scene has no missing resource paths. Verify `select_floor()` accepts unlocked floors and rejects invalid or locked floors without changing state.
 
 - [ ] **Step 4: Manually inspect portrait scaling**
   Run at the configured portrait viewport; verify counters and controls remain on-screen and navigation does not hide the mine state.
