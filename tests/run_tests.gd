@@ -76,7 +76,7 @@ func _test_block_rewards() -> void:
 	var paid_balance: int = state.coins
 	state.complete_block()
 	_check(state.coins == paid_balance, "a block reward cannot be claimed twice")
-	var miner_coins := state.coins + state.get_miner_cost("miner")
+	var miner_coins: int = int(state.coins) + int(state.get_miner_cost("miner"))
 	state.coins = miner_coins
 	_check(state.buy_miner("miner") and state.miners["miner"] == 1, "player can hire a miner")
 	_check(not state.buy_miner("unknown"), "unknown miner cannot be purchased")
