@@ -42,7 +42,7 @@ func _test_floor_catalog() -> void:
 	_check(catalog.floor_count() == 30, "first mine has exactly 30 floors")
 	var first: Dictionary = catalog.floor_data(0)
 	var last: Dictionary = catalog.floor_data(29)
-	_check(first.get("health", 0.0) > 0.0 and last.get("reward", 0) > 0, "all floor data has positive health and reward")
+	_check(first.get("health", 0.0) > 0.0 and last.get("reward", 0) > 0, "floor data has positive health and reward")
 
 func _test_floor_upgrades() -> void:
 	var script = _load_required("res://scripts/game_state.gd")
@@ -59,9 +59,9 @@ func _test_floor_upgrades() -> void:
 	_check(state.floor_upgrade_levels[0] == 800 and state.coins == balance_at_cap, "capped purchase changes neither level nor coins")
 	_check(state.floor_upgrade_levels[1] == 0, "upgrading one floor does not upgrade another")
 	_check(not state.buy_floor_upgrade(-1) and not state.buy_floor_upgrade(30), "invalid floor indices are rejected")
-	state.floor_upgrade_levels[1] = 0
 	state.coins = 0
 	_check(not state.buy_floor_upgrade(0) and state.coins == 0, "unaffordable upgrade leaves balance unchanged")
+	_check(not state.select_floor(1), "locked floor cannot be selected")
 
 func _test_block_rewards() -> void:
 	var script = _load_required("res://scripts/game_state.gd")
@@ -76,6 +76,10 @@ func _test_block_rewards() -> void:
 	var paid_balance: int = state.coins
 	state.complete_block()
 	_check(state.coins == paid_balance, "a block reward cannot be claimed twice")
+	var miner_coins := state.coins + state.get_miner_cost("miner")
+	state.coins = miner_coins
+	_check(state.buy_miner("miner") and state.miners["miner"] == 1, "player can hire a miner")
+	_check(not state.buy_miner("unknown"), "unknown miner cannot be purchased")
 
 func _test_save_normalization() -> void:
 	var script = _load_required("res://scripts/save_manager.gd")
